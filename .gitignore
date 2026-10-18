@@ -25,3 +25,5 @@ test-asset.webp
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
