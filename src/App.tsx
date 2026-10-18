@@ -1,26 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Navbar, MainTab } from './components/Navbar';
 import { HomePage } from './components/HomePage';
-import { AboutPage } from './components/AboutPage';
-import { ResearchPage } from './components/ResearchPage';
-import { LeadershipPage } from './components/LeadershipPage';
-import { InitiativesPage } from './components/InitiativesPage';
-import { EngagementsPage } from './components/EngagementsPage';
-import { ResourcesPage } from './components/ResourcesPage';
-import { UpdatesPage } from './components/UpdatesPage';
-import { ContactPage } from './components/ContactPage';
+import { useScholarSession } from './hooks/useScholarSession';
 import { PROFESSOR_INFO } from './data/professorData';
-import { Feather, ExternalLink } from 'lucide-react';
+import { Feather, ExternalLink, Archive } from 'lucide-react';
+import { AcademicErrorBoundary } from './components/common/AcademicErrorBoundary';
+
+// Lazily loaded tab views (Optimized for instant Initial Paint)
+const ResearchPage = lazy(() => import('./components/ResearchPage').then(m => ({ default: m.ResearchPage })));
+const LiterarySalonPage = lazy(() => import('./components/LiterarySalonPage').then(m => ({ default: m.LiterarySalonPage })));
+const LibraryStorePage = lazy(() => import('./components/library-store/LibraryStorePage').then(m => ({ default: m.LibraryStorePage })));
+const LeadershipPage = lazy(() => import('./components/LeadershipPage').then(m => ({ default: m.LeadershipPage })));
+const ContactPage = lazy(() => import('./components/ContactPage').then(m => ({ default: m.ContactPage })));
+
+// Lazily loaded standalone modals (Loaded on demand only when opened)
+const AcademicCompendiumModal = lazy(() => import('./components/AcademicCompendiumModal').then(m => ({ default: m.AcademicCompendiumModal })));
+const ScholarAuthModal = lazy(() => import('./components/library-store/ScholarAuthModal').then(m => ({ default: m.ScholarAuthModal })));
+const DeviceTransferredModal = lazy(() => import('./components/library-store/DeviceTransferredModal').then(m => ({ default: m.DeviceTransferredModal })));
+const ProtectedReaderModal = lazy(() => import('./components/library-store/ProtectedReaderModal').then(m => ({ default: m.ProtectedReaderModal })));
+const ExamPortal = lazy(() => import('./components/library-store/ExamPortal').then(m => ({ default: m.ExamPortal })));
+
+const AcademicLoadingFallback: React.FC = () => (
+  <div className="min-h-[45vh] flex flex-col items-center justify-center p-8 space-y-3 text-center animate-fade-in">
+    <div className="w-11 h-11 rounded-2xl bg-claret-soft border border-claret/30 flex items-center justify-center text-claret animate-pulse shadow-xs">
+      <Feather className="w-5 h-5" />
+    </div>
+    <div className="space-y-1">
+      <span className="text-[10px] font-mono uppercase tracking-widest text-claret font-bold">
+        Sardar Patel University Repository
+      </span>
+      <p className="font-serif text-base text-ink">Retrieving Academic Folio...</p>
+    </div>
+  </div>
+);
 
 export function App() {
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [activeSubSection, setActiveSubSection] = useState<string | undefined>(undefined);
+  const [isCompendiumOpen, setIsCompendiumOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isReaderOpen, setIsReaderOpen] = useState(false);
+  const [isExamOpen, setIsExamOpen] = useState(false);
+
+  const { session, sessionTransferred, setSessionTransferred, isBookOwned, isExamOwned } = useScholarSession();
 
   const handleNavigate = (tab: MainTab, subSection?: string) => {
     setActiveTab(tab);
     setActiveSubSection(subSection);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const tabTitles: Record<string, string> = {
+      home: `${PROFESSOR_INFO.name} | Assistant Professor & Academic Researcher`,
+      research: `Research & Books | ${PROFESSOR_INFO.name}`,
+      salon: `The Literary Salon | ${PROFESSOR_INFO.name}`,
+      store: `The Atheneum | Academic Acquisitions | ${PROFESSOR_INFO.name}`,
+      leadership: `Academic Leadership | ${PROFESSOR_INFO.name}`,
+      contact: `Dialogue & Contact | ${PROFESSOR_INFO.name}`,
+      about: `About | ${PROFESSOR_INFO.name}`
+    };
+    document.title = tabTitles[activeTab] || `${PROFESSOR_INFO.name} | Assistant Professor & Academic Researcher`;
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeSubSection) {
@@ -34,52 +75,142 @@ export function App() {
   }, [activeTab, activeSubSection]);
 
   return (
-    <div className="min-h-screen bg-[#fcfbf9] text-slate-900 font-sans relative selection:bg-red-900 selection:text-white pb-20">
+    <div className="min-h-screen bg-[#FAF9F5] text-ink font-sans relative selection:bg-claret selection:text-white pb-24 lg:pb-20">
       
       {/* Navigation Bar */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={handleNavigate}
+        onOpenCompendium={() => setIsCompendiumOpen(true)}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 md:px-8 pt-24 min-h-[75vh]">
-        {activeTab === 'home' && <HomePage onNavigate={handleNavigate} />}
-        {activeTab === 'about' && <AboutPage subSection={activeSubSection} />}
-        {activeTab === 'research' && <ResearchPage subSection={activeSubSection} />}
-        {activeTab === 'leadership' && <LeadershipPage subSection={activeSubSection} />}
-        {activeTab === 'initiatives' && <InitiativesPage subSection={activeSubSection} />}
-        {activeTab === 'engagements' && <EngagementsPage subSection={activeSubSection} />}
-        {activeTab === 'resources' && <ResourcesPage subSection={activeSubSection} />}
-        {activeTab === 'updates' && <UpdatesPage subSection={activeSubSection} />}
-        {activeTab === 'contact' && <ContactPage />}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 pt-24 sm:pt-28 min-h-[75vh]">
+        <AcademicErrorBoundary fallbackTitle="Academic Section Interrupted">
+          <Suspense fallback={<AcademicLoadingFallback />}>
+            {activeTab === 'home' && (
+              <HomePage
+                onNavigate={handleNavigate}
+                onOpenCompendium={() => setIsCompendiumOpen(true)}
+              />
+            )}
+            {activeTab === 'research' && (
+              <ResearchPage
+                onOpenCompendium={() => setIsCompendiumOpen(true)}
+                onNavigate={handleNavigate}
+              />
+            )}
+            {activeTab === 'salon' && <LiterarySalonPage />}
+            {activeTab === 'store' && (
+              <LibraryStorePage onOpenAuthModal={() => setIsAuthModalOpen(true)} />
+            )}
+            {activeTab === 'leadership' && (
+              <LeadershipPage
+                onOpenCompendium={() => setIsCompendiumOpen(true)}
+              />
+            )}
+            {activeTab === 'contact' && <ContactPage />}
+            {activeTab === 'about' && (
+              <HomePage
+                initialView="cv"
+                onNavigate={handleNavigate}
+                onOpenCompendium={() => setIsCompendiumOpen(true)}
+              />
+            )}
+          </Suspense>
+        </AcademicErrorBoundary>
       </main>
 
-      {/* Global Footer */}
-      <footer className="max-w-7xl mx-auto px-4 md:px-8 mt-16 sm:mt-24 pt-8 border-t border-slate-200 space-y-4 text-xs text-slate-500">
+      {/* Global Academic Compendium & Accreditation Modal */}
+      {isCompendiumOpen && (
+        <Suspense fallback={null}>
+          <AcademicCompendiumModal
+            isOpen={isCompendiumOpen}
+            onClose={() => setIsCompendiumOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Global Scholar Sign-In & Single-Device Transfer Modal */}
+      {isAuthModalOpen && (
+        <Suspense fallback={null}>
+          <ScholarAuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onOpenReader={() => setIsReaderOpen(true)}
+            onOpenExam={() => setIsExamOpen(true)}
+          />
+        </Suspense>
+      )}
+
+      {/* Security Eviction Notice: Session Transferred to Another Device */}
+      {sessionTransferred && (
+        <Suspense fallback={null}>
+          <DeviceTransferredModal
+            isOpen={sessionTransferred}
+            onClose={() => setSessionTransferred(false)}
+            onReLogin={() => {
+              setSessionTransferred(false);
+              setIsAuthModalOpen(true);
+            }}
+          />
+        </Suspense>
+      )}
+
+      {/* Global Protected Reader Modal (when accessed via Scholar Sign-In or Direct Launch) */}
+      {isBookOwned && isReaderOpen && (
+        <Suspense fallback={null}>
+          <ProtectedReaderModal
+            isOpen={isReaderOpen}
+            onClose={() => setIsReaderOpen(false)}
+            studentName={session.name}
+            studentMobile={session.mobile}
+            orderId={session.orderId}
+            isUnlocked={true}
+          />
+        </Suspense>
+      )}
+
+      {/* Global UGC-NET CBT Exam Portal (when accessed via Scholar Sign-In or Direct Launch) */}
+      {isExamOwned && isExamOpen && (
+        <Suspense fallback={null}>
+          <ExamPortal
+            isOpen={isExamOpen}
+            onClose={() => setIsExamOpen(false)}
+            studentName={session.name}
+            orderId={session.orderId}
+            isUnlocked={true}
+          />
+        </Suspense>
+      )}
+
+      {/* Global Bookish Footer */}
+      <footer className="max-w-7xl mx-auto px-4 md:px-8 mt-20 sm:mt-28 pt-8 border-t border-deckle space-y-4 text-xs text-ink-muted">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
-            <Feather className="w-4 h-4 text-red-900 shrink-0" />
-            <span className="font-medium text-slate-900">{PROFESSOR_INFO.name}</span>
-            <span className="text-slate-500">• Assistant Professor • {PROFESSOR_INFO.institution}</span>
+            <Feather className="w-4 h-4 text-claret shrink-0" />
+            <span className="font-serif font-medium text-ink text-sm">{PROFESSOR_INFO.name}</span>
+            <span className="text-ink-faint">• Assistant Professor • {PROFESSOR_INFO.institution}</span>
           </div>
 
           {/* Social / Research Profile Links */}
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[11px] font-mono text-slate-600">
-            <a href={`https://orcid.org/${PROFESSOR_INFO.researchProfiles.orcid}`} target="_blank" rel="noreferrer" className="hover:text-red-900 underline flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[11px] font-mono text-ink-muted">
+            <a href={`https://orcid.org/${PROFESSOR_INFO.researchProfiles.orcid}`} target="_blank" rel="noreferrer" className="hover:text-claret underline flex items-center gap-1">
               ORCID <ExternalLink className="w-3 h-3" />
             </a>
-            <a href={`https://scholar.google.com/citations?user=${PROFESSOR_INFO.researchProfiles.googleScholar}`} target="_blank" rel="noreferrer" className="hover:text-red-900 underline flex items-center gap-1">
+            <a href={`https://scholar.google.com/citations?user=${PROFESSOR_INFO.researchProfiles.googleScholar}`} target="_blank" rel="noreferrer" className="hover:text-claret underline flex items-center gap-1">
               Google Scholar <ExternalLink className="w-3 h-3" />
             </a>
-            <span className="text-slate-400">ResearchGate</span>
-            <span className="text-slate-400">LinkedIn</span>
-            <span className="text-slate-400">YouTube</span>
+            <button onClick={() => setIsCompendiumOpen(true)} className="hover:text-claret font-sans font-medium text-claret flex items-center gap-1">
+              <Archive className="w-3 h-3" />
+              <span>Accreditation Record</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-400 text-center sm:text-left">
-          <span>© {new Date().getFullYear()} {PROFESSOR_INFO.name} | All Rights Reserved</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-deckle/60 text-[11px] text-ink-faint text-center sm:text-left">
+          <span>© {new Date().getFullYear()} {PROFESSOR_INFO.name} | All Academic Rights Reserved</span>
           <span>H. M. Patel Institute of English Training & Research, Vallabh Vidyanagar</span>
         </div>
       </footer>

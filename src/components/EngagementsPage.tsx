@@ -30,7 +30,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
       
       {/* Title Header */}
       <div className="pb-4 border-b border-slate-200">
-        <span className="text-xs font-mono uppercase tracking-widest text-red-900 font-semibold">Academic Outreach</span>
+        <span className="text-xs font-mono uppercase tracking-widest text-claret font-semibold">Academic Outreach</span>
         <h1 className="font-serif text-3xl md:text-4xl text-slate-900 mt-1">Academic Engagements</h1>
         <p className="text-sm text-slate-600 font-light mt-1">Invited lectures, conference paper presentations, session chair roles, and faculty development training.</p>
       </div>
@@ -38,7 +38,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
       {/* Interactive Filter Bar */}
       <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
         <div className="flex items-center gap-2 text-xs font-mono text-slate-700 font-semibold uppercase">
-          <Filter className="w-4 h-4 text-red-900 shrink-0" />
+          <Filter className="w-4 h-4 text-claret shrink-0" />
           <span>Filter Academic Engagements by Level & Year</span>
         </div>
 
@@ -52,7 +52,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
                 onClick={() => setSelectedLevel(lvl)}
                 className={`px-3 py-1 rounded-lg font-medium transition-all ${
                   selectedLevel === lvl
-                    ? 'bg-red-900 text-white shadow-xs'
+                    ? 'bg-claret text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -67,7 +67,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="px-3 py-1 rounded-lg bg-slate-100 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-red-900 font-mono"
+              className="px-3 py-1 rounded-lg bg-slate-100 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-claret font-mono"
             >
               {years.map(y => (
                 <option key={y} value={y}>{y}</option>
@@ -81,7 +81,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
       <section id="talks" className="space-y-4">
         <div className="pb-2 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Mic className="w-5 h-5 text-red-900 shrink-0" />
+            <Mic className="w-5 h-5 text-claret shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">Invited Talks & Lectures ({filteredTalks.length})</h2>
           </div>
         </div>
@@ -99,7 +99,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
             <tbody className="divide-y divide-slate-100">
               {filteredTalks.map((talk) => (
                 <tr key={talk.id} className="hover:bg-slate-50/80">
-                  <td className="py-3 px-4 font-mono font-semibold text-red-900 whitespace-nowrap">{talk.date}</td>
+                  <td className="py-3 px-4 font-mono font-semibold text-claret whitespace-nowrap">{talk.date}</td>
                   <td className="py-3 px-4 font-serif text-sm font-medium text-slate-900">{talk.topic}</td>
                   <td className="py-3 px-4 text-slate-600">{talk.event}</td>
                   <td className="py-3 px-4">
@@ -122,7 +122,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
       <section id="conferences" className="space-y-4">
         <div className="pb-2 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-red-900 shrink-0" />
+            <BookOpen className="w-5 h-5 text-claret shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">Conferences & Seminars ({filteredConferences.length})</h2>
           </div>
         </div>
@@ -140,7 +140,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
             <tbody className="divide-y divide-slate-100">
               {filteredConferences.map((paper) => (
                 <tr key={paper.id} className="hover:bg-slate-50/80">
-                  <td className="py-3 px-4 font-mono font-semibold text-red-900 whitespace-nowrap">{paper.date}</td>
+                  <td className="py-3 px-4 font-mono font-semibold text-claret whitespace-nowrap">{paper.date}</td>
                   <td className="py-3 px-4 font-serif text-sm font-medium text-slate-900">{paper.topic}</td>
                   <td className="py-3 px-4 text-slate-600">{paper.event}</td>
                   <td className="py-3 px-4">
@@ -163,7 +163,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
       <section id="session-chair" className="space-y-4">
         <div className="pb-2 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-red-900 shrink-0" />
+            <Award className="w-5 h-5 text-claret shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">Session Chair Roles ({filteredChairs.length})</h2>
           </div>
         </div>
@@ -180,7 +180,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
             <tbody className="divide-y divide-slate-100">
               {filteredChairs.map((sc) => (
                 <tr key={sc.id} className="hover:bg-slate-50/80">
-                  <td className="py-3 px-4 font-mono font-semibold text-red-900 whitespace-nowrap">{sc.date}</td>
+                  <td className="py-3 px-4 font-mono font-semibold text-claret whitespace-nowrap">{sc.date}</td>
                   <td className="py-3 px-4 font-serif text-sm font-medium text-slate-900">{sc.topic} – {sc.event}</td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-0.5 rounded font-mono text-[10px] border ${
@@ -202,7 +202,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
       <section id="fdp" className="space-y-4">
         <div className="pb-2 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-red-900 shrink-0" />
+            <Users className="w-5 h-5 text-claret shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">Faculty Development ({filteredFdp.length})</h2>
           </div>
         </div>
@@ -221,7 +221,7 @@ export const EngagementsPage: React.FC<EngagementsPageProps> = ({ subSection }) 
             <tbody className="divide-y divide-slate-100">
               {filteredFdp.map((fdp) => (
                 <tr key={fdp.id} className="hover:bg-slate-50/80">
-                  <td className="py-3 px-4 font-mono font-semibold text-red-900 whitespace-nowrap">{fdp.date}</td>
+                  <td className="py-3 px-4 font-mono font-semibold text-claret whitespace-nowrap">{fdp.date}</td>
                   <td className="py-3 px-4 font-serif text-sm font-medium text-slate-900">{fdp.topic}</td>
                   <td className="py-3 px-4 text-slate-600">{fdp.event}</td>
                   <td className="py-3 px-4 font-mono text-[11px] text-slate-500">{fdp.duration}</td>

@@ -11,7 +11,7 @@ export const InitiativesPage: React.FC<InitiativesPageProps> = ({ subSection }) 
       
       {/* Title Header */}
       <div className="pb-4 border-b border-slate-200">
-        <span className="text-xs font-mono uppercase tracking-widest text-red-900 font-semibold">Institutional Programs</span>
+        <span className="text-xs font-mono uppercase tracking-widest text-claret font-semibold">Institutional Programs</span>
         <h1 className="font-serif text-3xl md:text-4xl text-slate-900 mt-1">Academic Initiatives</h1>
         <p className="text-sm text-slate-600 font-light mt-1">Specialized forums, AI research centres, student clubs, and research development programs.</p>
       </div>
@@ -19,11 +19,11 @@ export const InitiativesPage: React.FC<InitiativesPageProps> = ({ subSection }) 
       {/* 5.1 ELEF – English Language Education Forum */}
       <section id="elef" className="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-white border border-slate-200 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-red-900">
+          <div className="flex items-center gap-2 text-claret">
             <Layers className="w-5 h-5 shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">ELEF – English Language Education Forum</h2>
           </div>
-          <span className="text-xs font-mono text-red-900 font-bold bg-red-50 px-3 py-1 rounded-full border border-red-200 self-start sm:self-auto">Role: Convener</span>
+          <span className="text-xs font-mono text-claret font-bold bg-claret-soft px-3 py-1 rounded-full border border-claret/20 self-start sm:self-auto">Role: Convener</span>
         </div>
 
         <p className="text-sm text-slate-700 leading-relaxed font-light">
@@ -40,11 +40,11 @@ export const InitiativesPage: React.FC<InitiativesPageProps> = ({ subSection }) 
       {/* 5.2 CAIELE – Centre for Artificial Intelligence in English Language Education */}
       <section id="caiele" className="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-white border border-slate-200 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-red-900">
+          <div className="flex items-center gap-2 text-claret">
             <Sparkles className="w-5 h-5 shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">CAIELE – Centre for Artificial Intelligence in ELE</h2>
           </div>
-          <span className="text-xs font-mono text-red-900 font-bold bg-red-50 px-3 py-1 rounded-full border border-red-200 self-start sm:self-auto">Role: Coordinator</span>
+          <span className="text-xs font-mono text-claret font-bold bg-claret-soft px-3 py-1 rounded-full border border-claret/20 self-start sm:self-auto">Role: Coordinator</span>
         </div>
 
         <p className="text-sm text-slate-700 leading-relaxed font-light">
@@ -88,11 +88,11 @@ export const InitiativesPage: React.FC<InitiativesPageProps> = ({ subSection }) 
       {/* 5.4 RDC Initiatives */}
       <section id="rdc-init" className="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-white border border-slate-200 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-red-900">
+          <div className="flex items-center gap-2 text-claret">
             <ShieldCheck className="w-5 h-5 shrink-0" />
             <h2 className="font-serif text-xl sm:text-2xl text-slate-900">RDC – Research & Development Cell Initiatives</h2>
           </div>
-          <span className="text-xs font-mono text-red-900 font-bold bg-red-50 px-3 py-1 rounded-full border border-red-200 self-start sm:self-auto">Coordinator</span>
+          <span className="text-xs font-mono text-claret font-bold bg-claret-soft px-3 py-1 rounded-full border border-claret/20 self-start sm:self-auto">Coordinator</span>
         </div>
 
         <p className="text-sm text-slate-700 leading-relaxed font-light">

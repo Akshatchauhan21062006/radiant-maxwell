@@ -1,234 +1,335 @@
-import React, { useState } from 'react';
-import { Feather, ChevronDown, Menu, X, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Feather, Menu, X, BookOpen, Sparkles, ChevronRight, Archive, KeyRound, ShieldCheck, Layers } from 'lucide-react';
 import { PROFESSOR_INFO } from '../data/professorData';
+import { useScholarSession } from '../hooks/useScholarSession';
+import { ProfessorCrestIcon } from './common/ProfessorCrestIcon';
 
-export type MainTab = 'home' | 'about' | 'research' | 'leadership' | 'initiatives' | 'engagements' | 'resources' | 'updates' | 'contact';
+export type MainTab = 'home' | 'research' | 'salon' | 'store' | 'leadership' | 'contact' | 'about';
 
 interface NavbarProps {
   activeTab: MainTab;
   setActiveTab: (tab: MainTab, subSection?: string) => void;
+  onOpenCompendium: () => void;
+  onOpenAuthModal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  onOpenCompendium,
+  onOpenAuthModal
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [mobileExpandedSection, setMobileExpandedSection] = useState<string | null>(null);
+  const { session } = useScholarSession();
 
-  const menuStructure = [
-    { id: 'home', label: 'Home' },
-    {
-      id: 'about',
-      label: 'About',
-      subTabs: [
-        { id: 'profile', label: 'Profile' },
-        { id: 'qualifications', label: 'Qualifications & Eligibility' },
-        { id: 'experience', label: 'Professional Experience' },
-        { id: 'expertise', label: 'Areas of Expertise' },
-        { id: 'philosophy', label: 'Vision & Academic Philosophy' },
-        { id: 'memberships', label: 'Memberships' },
-      ]
-    },
-    {
-      id: 'research',
-      label: 'Research',
-      subTabs: [
-        { id: 'interests', label: 'Research Interests' },
-        { id: 'doctoral', label: 'Doctoral Research & Projects' },
-        { id: 'publications', label: 'Publications (19)' },
-        { id: 'books', label: 'Books (10)' },
-        { id: 'profiles', label: 'Research Profiles & Metrics' },
-      ]
-    },
-    {
-      id: 'leadership',
-      label: 'Academic Leadership',
-      subTabs: [
-        { id: 'iqac', label: 'IQAC & NAAC' },
-        { id: 'ncte', label: 'NCTE / Teacher Education' },
-        { id: 'placement', label: 'Placement & Career Counselling' },
-        { id: 'gsirf', label: 'GSIRF' },
-        { id: 'rdc-lead', label: 'RDC – Research Cell' },
-        { id: 'induction', label: 'Student Induction' },
-        { id: 'editorial', label: 'Editorial Roles' },
-        { id: 'curriculum', label: 'Curriculum Development' },
-        { id: 'other-resp', label: 'Other Responsibilities' },
-      ]
-    },
-    {
-      id: 'initiatives',
-      label: 'Initiatives',
-      subTabs: [
-        { id: 'elef', label: 'ELEF Forum' },
-        { id: 'caiele', label: 'CAIELE (AI in ELE)' },
-        { id: 'english-club', label: 'English Club' },
-        { id: 'rdc-init', label: 'RDC Initiatives' },
-      ]
-    },
-    {
-      id: 'engagements',
-      label: 'Academic Engagements',
-      subTabs: [
-        { id: 'talks', label: 'Invited Talks & Lectures (22)' },
-        { id: 'conferences', label: 'Conferences & Seminars (12)' },
-        { id: 'session-chair', label: 'Session Chair (9)' },
-        { id: 'fdp', label: 'Faculty Development & Training' },
-      ]
-    },
-    {
-      id: 'resources',
-      label: 'Resources',
-      subTabs: [
-        { id: 'acad-res', label: 'Academic Resources' },
-        { id: 'teach-res', label: 'Teaching Resources' },
-        { id: 'res-res', label: 'Research Resources' },
-        { id: 'ai-ele', label: 'AI & English Language Education' },
-      ]
-    },
-    {
-      id: 'updates',
-      label: 'Updates',
-      subTabs: [
-        { id: 'news', label: 'Latest News' },
-        { id: 'events', label: 'Events' },
-        { id: 'achievements', label: 'Achievements' },
-        { id: 'announcements', label: 'Announcements' },
-      ]
-    },
-    { id: 'contact', label: 'Contact' }
+  const isScholarActive = Boolean(
+    session.unlockedItems && session.unlockedItems.length > 0 && session.mobile
+  );
+
+  // 6 Primary Academic Spaces with adaptive labels for spacious, non-overlapping layouts
+  const primaryNavItems: {
+    id: MainTab;
+    label: string;
+    shortLabel: string;
+    icon?: React.ReactNode;
+  }[] = [
+    { id: 'home', label: 'The Scholar', shortLabel: 'Scholar' },
+    { id: 'research', label: 'Research & Books', shortLabel: 'Research' },
+    { id: 'salon', label: 'Literary Salon', shortLabel: 'Salon', icon: <Sparkles className="w-3.5 h-3.5 text-brass shrink-0" /> },
+    { id: 'store', label: 'The Atheneum', shortLabel: 'Atheneum', icon: <BookOpen className="w-3.5 h-3.5 text-brass shrink-0" /> },
+    { id: 'leadership', label: 'Initiatives & Leadership', shortLabel: 'Leadership' },
+    { id: 'contact', label: 'Contact', shortLabel: 'Contact' }
   ];
 
-  const handleNavClick = (tabId: string, subId?: string) => {
-    setActiveTab(tabId as MainTab, subId);
-    setOpenDropdown(null);
+  const handleNavClick = (tabId: MainTab, subId?: string) => {
+    setActiveTab(tabId, subId);
     setMobileMenuOpen(false);
   };
 
-  const toggleMobileAccordion = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setMobileExpandedSection(mobileExpandedSection === id ? null : id);
+  const isTabActive = (tabId: MainTab) => {
+    if (activeTab === tabId) return true;
+    if (tabId === 'home' && activeTab === 'about') return true;
+    return false;
   };
 
+  // Prevent background scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs transition-all">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-2.5 sm:py-3 flex items-center justify-between">
-        
-        {/* Brand / Logo */}
-        <div 
-          onClick={() => handleNavClick('home')}
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group py-1"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-900/10 border border-red-900/30 flex items-center justify-center text-red-900 group-hover:bg-red-900 group-hover:text-white transition-all shrink-0">
-            <Feather className="w-4 h-4 sm:w-5 sm:h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-serif text-base sm:text-lg md:text-xl font-medium tracking-tight text-slate-900 truncate">
-                {PROFESSOR_INFO.name}
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-500 tracking-wide font-light hidden sm:block truncate">
-              {PROFESSOR_INFO.institution}
-            </p>
-          </div>
-        </div>
-
-        {/* Desktop Top Menu */}
-        <nav className="hidden xl:flex items-center gap-1">
-          {menuStructure.map((item) => (
-            <div
-              key={item.id}
-              className="relative"
-              onMouseEnter={() => item.subTabs && setOpenDropdown(item.id)}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button
-                onClick={() => handleNavClick(item.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all ${
-                  activeTab === item.id
-                    ? 'bg-red-900 text-white shadow-xs'
-                    : 'text-slate-700 hover:text-red-900 hover:bg-slate-100'
-                }`}
-              >
-                <span>{item.label}</span>
-                {item.subTabs && (
-                  <ChevronDown className={`w-3 h-3 transition-transform ${openDropdown === item.id ? 'rotate-180' : ''}`} />
-                )}
-              </button>
-
-              {/* Dropdown Menu */}
-              {item.subTabs && openDropdown === item.id && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50 animate-fade-in">
-                  {item.subTabs.map((sub) => (
-                    <button
-                      key={sub.id}
-                      onClick={() => handleNavClick(item.id, sub.id)}
-                      className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-red-900/10 hover:text-red-900 transition-colors flex items-center justify-between"
-                    >
-                      <span>{sub.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </nav>
-
-        {/* Mobile Toggle Button */}
-        <div className="flex items-center gap-2">
+    <>
+      {/* ========================================================= */}
+      {/* TOP DESKTOP & MOBILE HEADER                              */}
+      {/* ========================================================= */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-deckle transition-all shadow-xs">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
+          
+          {/* ===================================================== */}
+          {/* ZONE 1: BRAND IDENTITY (PROFESSOR CREST & NAME)       */}
+          {/* ===================================================== */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2.5 rounded-xl text-slate-700 hover:bg-slate-100 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-            aria-label="Toggle Navigation Menu"
+            onClick={() => handleNavClick('home')}
+            className="flex items-center gap-2.5 sm:gap-3 text-left group shrink-0 py-1"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <ProfessorCrestIcon className="w-9 h-9 sm:w-10 sm:h-10 shrink-0" />
+            <div className="min-w-0 pr-1">
+              <h1 className="font-serif text-sm sm:text-base font-medium text-ink group-hover:text-claret transition-colors leading-tight truncate">
+                {PROFESSOR_INFO.name}
+              </h1>
+              <p className="text-[10px] sm:text-[11px] font-mono text-ink-muted font-normal tracking-wide truncate max-w-[150px] sm:max-w-none">
+                Assistant Professor • HMPIETR, SPU
+              </p>
+            </div>
           </button>
-        </div>
 
-      </div>
-
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="xl:hidden bg-white border-b border-slate-200 px-4 py-3 max-h-[82vh] overflow-y-auto space-y-1.5 shadow-2xl animate-fade-in">
-          {menuStructure.map((item) => {
-            const isExpanded = mobileExpandedSection === item.id;
-            return (
-              <div key={item.id} className="rounded-xl overflow-hidden border border-slate-100">
-                <div 
-                  className={`w-full flex items-center justify-between px-3.5 py-3 min-h-[44px] cursor-pointer transition-colors ${
-                    activeTab === item.id ? 'bg-red-900 text-white' : 'bg-slate-50 text-slate-800 hover:bg-slate-100'
-                  }`}
+          {/* ===================================================== */}
+          {/* ZONE 2: DESKTOP PRIMARY NAVIGATION (GUARANTEED FIT)   */}
+          {/* ===================================================== */}
+          <nav
+            aria-label="Primary Navigation"
+            className="hidden lg:flex items-center gap-1 xl:gap-1.5 2xl:gap-2 px-2 py-1 rounded-2xl bg-white/75 border border-deckle/80 shadow-2xs shrink-0"
+          >
+            {primaryNavItems.map((item) => {
+              const active = isTabActive(item.id);
+              return (
+                <button
+                  key={item.id}
                   onClick={() => handleNavClick(item.id)}
+                  className={`px-2.5 xl:px-3 py-1.5 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-sans transition-all flex items-center gap-1.5 whitespace-nowrap min-h-[36px] ${
+                    active
+                      ? 'bg-claret text-white font-medium shadow-xs'
+                      : 'text-ink-muted hover:text-ink hover:bg-parchment-deep/60'
+                  }`}
                 >
-                  <span className="font-serif text-sm font-semibold">{item.label}</span>
-                  {item.subTabs && (
-                    <button
-                      onClick={(e) => toggleMobileAccordion(item.id, e)}
-                      className="p-1 text-inherit hover:opacity-80 shrink-0"
-                    >
-                      <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                    </button>
-                  )}
-                </div>
+                  {item.icon}
+                  <span className="hidden 2xl:inline">{item.label}</span>
+                  <span className="2xl:hidden">{item.shortLabel}</span>
+                </button>
+              );
+            })}
+          </nav>
 
-                {item.subTabs && isExpanded && (
-                  <div className="bg-slate-50/80 px-4 py-2 space-y-1 border-t border-slate-200/60">
-                    {item.subTabs.map((sub) => (
-                      <button
-                        key={sub.id}
-                        onClick={() => handleNavClick(item.id, sub.id)}
-                        className="w-full text-left py-2 px-2 text-xs text-slate-700 hover:text-red-900 hover:bg-white rounded-lg transition-colors flex items-center justify-between min-h-[38px]"
-                      >
-                        <span>{sub.label}</span>
-                        <ChevronRight className="w-3 h-3 text-slate-400" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {/* ===================================================== */}
+          {/* ZONE 3: DESKTOP ACTION CONTROLS (NEVER CUT OFF)       */}
+          {/* ===================================================== */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
+            {/* Scholar Sign-In / Active Pass Button */}
+            {onOpenAuthModal && (
+              isScholarActive ? (
+                <button
+                  onClick={onOpenAuthModal}
+                  className="px-2.5 xl:px-3 py-1.5 rounded-xl bg-claret-soft border border-claret/30 text-xs font-mono text-claret font-semibold hover:bg-claret hover:text-white transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap min-h-[36px]"
+                  title="View your active scholar pass & holdings on this personal device"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="truncate max-w-[85px] xl:max-w-[110px]">{session.name}</span>
+                  <span className="text-[10px] opacity-75 font-normal hidden 2xl:inline">(1-Device)</span>
+                </button>
+              ) : (
+                <button
+                  onClick={onOpenAuthModal}
+                  className="px-2.5 xl:px-3 py-1.5 rounded-xl bg-white border border-deckle hover:border-claret text-xs font-sans font-medium text-ink-muted hover:text-claret transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap min-h-[36px]"
+                  title="Sign in to access your purchased books and CBT exams on this device"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-claret shrink-0" />
+                  <span className="hidden 2xl:inline">Scholar Sign-In</span>
+                  <span className="2xl:hidden">Sign In</span>
+                </button>
+              )
+            )}
+
+            {/* Academic Archive Compendium Button */}
+            <button
+              onClick={onOpenCompendium}
+              className="px-2.5 xl:px-3 py-1.5 rounded-xl bg-white border border-deckle hover:border-claret text-xs font-sans font-medium text-ink-muted hover:text-claret transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap min-h-[36px]"
+              title="Open comprehensive accreditation qualifications and lecture records"
+            >
+              <Archive className="w-3.5 h-3.5 text-claret shrink-0" />
+              <span className="hidden 2xl:inline">Academic Archive</span>
+              <span className="2xl:hidden">Archive</span>
+            </button>
+          </div>
+
+          {/* ===================================================== */}
+          {/* MOBILE HEADER CONTROLS (< 1024px)                     */}
+          {/* ===================================================== */}
+          <div className="flex items-center gap-2 lg:hidden shrink-0">
+            {/* Tablet-only Archive Icon Shortcut (sm to lg) */}
+            <button
+              onClick={onOpenCompendium}
+              className="hidden sm:flex p-2 rounded-xl bg-white border border-deckle text-xs text-claret font-medium items-center gap-1 min-h-[40px] shadow-2xs"
+              title="Academic Archive"
+            >
+              <Archive className="w-4 h-4" />
+              <span className="hidden md:inline text-xs font-sans">Archive</span>
+            </button>
+
+            {/* Scholar Active Pass Indicator Badge on Mobile */}
+            {onOpenAuthModal && isScholarActive && (
+              <button
+                onClick={onOpenAuthModal}
+                className="px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-300 text-xs font-mono text-emerald-900 font-bold flex items-center gap-1.5 min-h-[38px] shadow-2xs shrink-0"
+                title="Active Scholar Pass"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse shrink-0" />
+                <span className="text-[11px] truncate max-w-[65px]">{session.name.split(' ')[0]}</span>
+              </button>
+            )}
+
+            {/* Hamburger Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2.5 rounded-xl bg-white border border-deckle text-ink-muted hover:text-ink min-h-[40px] min-w-[40px] flex items-center justify-center shadow-2xs transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 text-claret" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
         </div>
-      )}
-    </header>
+
+        {/* ===================================================== */}
+        {/* MOBILE SLIDE-DOWN DRAWER MENU                         */}
+        {/* ===================================================== */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-b border-deckle bg-white/98 backdrop-blur-xl px-4 py-5 space-y-4 shadow-book-lg animate-fade-in max-h-[calc(100vh-5rem)] overflow-y-auto">
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono text-ink-faint uppercase tracking-wider block px-3 py-1 font-semibold">
+                Academic Spaces
+              </span>
+              {primaryNavItems.map((item) => {
+                const active = isTabActive(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-sans transition-all flex items-center justify-between min-h-[44px] ${
+                      active
+                        ? 'bg-claret text-white font-medium shadow-xs'
+                        : 'text-ink-muted hover:bg-parchment-warm hover:text-ink'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </span>
+                    <ChevronRight className="w-4 h-4 opacity-50" />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Secondary Action Drawer Links */}
+            <div className="pt-3 border-t border-deckle space-y-2">
+              <span className="text-[10px] font-mono text-ink-faint uppercase tracking-wider block px-3 py-1 font-semibold">
+                Scholar Services & Accreditation
+              </span>
+
+              {onOpenAuthModal && (
+                <button
+                  onClick={() => { setMobileMenuOpen(false); onOpenAuthModal(); }}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl border text-xs font-sans font-medium flex items-center justify-between min-h-[44px] ${
+                    isScholarActive
+                      ? 'bg-claret-soft border-claret text-claret font-semibold'
+                      : 'bg-white border-deckle text-ink'
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    {isScholarActive ? <ShieldCheck className="w-4 h-4 text-emerald-600" /> : <KeyRound className="w-4 h-4 text-claret" />}
+                    <span>{isScholarActive ? `Active Scholar Pass: ${session.name}` : 'Scholar Sign-In (Access Books & Exams)'}</span>
+                  </span>
+                  <ChevronRight className="w-4 h-4 opacity-60" />
+                </button>
+              )}
+
+              <button
+                onClick={() => { setMobileMenuOpen(false); onOpenCompendium(); }}
+                className="w-full text-left px-3.5 py-2.5 rounded-xl bg-parchment-warm border border-deckle text-xs font-sans text-claret font-medium flex items-center justify-between min-h-[44px]"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Archive className="w-4 h-4" />
+                  <span>Academic Compendium (Degrees, Talks, FDP)</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-claret" />
+              </button>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ========================================================= */}
+      {/* MOBILE THUMB-ERGONOMIC BOTTOM NAVIGATION BAR             */}
+      {/* ========================================================= */}
+      <nav
+        aria-label="Mobile Bottom Navigation"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-t border-deckle px-3 py-1.5 flex items-center justify-around shadow-book pb-[max(env(safe-area-inset-bottom),0.5rem)]"
+      >
+        <button
+          onClick={() => handleNavClick('home')}
+          className={`flex flex-col items-center justify-center p-1 rounded-xl transition-all min-w-[50px] min-h-[44px] ${
+            isTabActive('home') ? 'text-claret font-bold' : 'text-ink-muted hover:text-ink'
+          }`}
+        >
+          <Feather className="w-4 h-4 mb-0.5" />
+          <span className="text-[10px] font-sans">Scholar</span>
+        </button>
+
+        <button
+          onClick={() => handleNavClick('research')}
+          className={`flex flex-col items-center justify-center p-1 rounded-xl transition-all min-w-[50px] min-h-[44px] ${
+            isTabActive('research') ? 'text-claret font-bold' : 'text-ink-muted hover:text-ink'
+          }`}
+        >
+          <Layers className="w-4 h-4 mb-0.5" />
+          <span className="text-[10px] font-sans">Research</span>
+        </button>
+
+        <button
+          onClick={() => handleNavClick('salon')}
+          className={`flex flex-col items-center justify-center p-1 rounded-xl transition-all min-w-[50px] min-h-[44px] ${
+            isTabActive('salon') ? 'text-claret font-bold' : 'text-ink-muted hover:text-ink'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 mb-0.5 text-brass" />
+          <span className="text-[10px] font-sans">Salon</span>
+        </button>
+
+        <button
+          onClick={() => handleNavClick('store')}
+          className={`flex flex-col items-center justify-center p-1 rounded-xl transition-all min-w-[50px] min-h-[44px] ${
+            isTabActive('store') ? 'text-claret font-bold' : 'text-ink-muted hover:text-ink'
+          }`}
+        >
+          <BookOpen className="w-4 h-4 mb-0.5" />
+          <span className="text-[10px] font-sans">Atheneum</span>
+        </button>
+
+        {onOpenAuthModal && (
+          <button
+            onClick={onOpenAuthModal}
+            className={`flex flex-col items-center justify-center p-1 rounded-xl transition-all min-w-[50px] min-h-[44px] ${
+              isScholarActive ? 'text-emerald-700 font-bold' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            {isScholarActive ? (
+              <ShieldCheck className="w-4 h-4 mb-0.5 text-emerald-600" />
+            ) : (
+              <KeyRound className="w-4 h-4 mb-0.5 text-claret" />
+            )}
+            <span className="text-[10px] font-sans truncate max-w-[50px]">
+              {isScholarActive ? 'Pass' : 'Sign In'}
+            </span>
+          </button>
+        )}
+      </nav>
+    </>
   );
 };
